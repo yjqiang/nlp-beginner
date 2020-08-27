@@ -4,6 +4,7 @@ assignment1/cs231n/gradient_check.py
 from typing import Callable
 from random import randrange
 
+# 运行梯度检查时，切记要把 cupy_or_numpy.py 的 cupy 改掉！！！
 import numpy as np
 
 

@@ -22,6 +22,7 @@ if not (Path("data/train_split.tsv").is_file() and Path("data/val_split.tsv").is
 else:
     x_train_orig, y_train = data_handle.read_tsv_data0('data/train_split.tsv')
     x_val_orig, y_val = data_handle.read_tsv_data0('data/val_split.tsv')
+    x_val_orig, y_val = x_val_orig[:3000], y_val[:3000]
 
 n_gram = 1
 

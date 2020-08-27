@@ -1,7 +1,7 @@
 """
 单层的实现，方便拼接
 """
-import numpy as np
+from cupy_or_numpy import np
 
 
 class Variable:

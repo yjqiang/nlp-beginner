@@ -5,6 +5,7 @@ from tqdm import tqdm
 
 import layers
 from utils import general_utils
+from cupy_or_numpy import np as np_
 
 
 class Model:
@@ -17,7 +18,7 @@ class Model:
         self.cross_entropy_loss_layer = layers.CrossEntropyLossLayer()
         self.parameters = self.linear_layer.parameters + self.cross_entropy_loss_layer.parameters
 
-    def get_scores(self, x: np.ndarray) -> np.ndarray:
+    def get_scores(self, x: np_.ndarray) -> np.ndarray:
         """
         求分数，是 softmax 的前一层
         :param x: shape: (N, input_features)
@@ -26,7 +27,7 @@ class Model:
         output_linear_layer = self.linear_layer.forward(x)  # 这就是 scores，shape: (N, out_features)
         return output_linear_layer
 
-    def forward(self, x: np.ndarray, y: np.ndarray, reg: float = 0.0) -> float:
+    def forward(self, x: np_.ndarray, y: np_.ndarray, reg: float = 0.0) -> float:
         """
         前向传播
         :param x: shape: (N, input_features)
@@ -60,6 +61,18 @@ class Model:
             getattr(getattr(self, variable_name), parameter_name).value = value
         return self.forward(**kwargs)
 
+    def check_accuracy(self, x: np_.ndarray, y: np_.ndarray) -> None:
+        """
+        检查准确率
+        :param x: shape: (N, input_features)
+        :param y: shape: (N, )   y[i] 是 x[i] 的分类真值，且 0 <= y[i] < num_of_classes
+        :return:
+        """
+        scores = self.get_scores(x)  # shape: (N, out_features=类别数目)
+        pred_y = np_.argmax(scores, axis=1)  # shape: (N2, )
+        accuracy = float(np_.sum(y == pred_y) / y.shape[0])  # cupy.sum https://docs.cupy.dev/en/stable/reference/difference.html#reduction-methods 显式转化
+        print(f"当前准确率为: {accuracy:.5%}", )
+
     def train(self, x_train: np.ndarray, y_train: np.ndarray, x_val: np.ndarray, y_val: np.ndarray, batch_size: int, epoch_num: int, learning_rate: float, reg: float = 0.0) -> None:
         """
         训练
@@ -89,25 +102,28 @@ class Model:
         :param reg:
         :return:
         """
+        x_val = np_.asarray(x_val)
+        y_val = np_.asarray(y_val)
 
         n_minibatches = math.ceil(x_train.shape[0] / batch_size)
         loss_meter = general_utils.AverageMeter()
 
         with tqdm(total=n_minibatches) as prog:
             for iterator, (cur_x_train, cur_y_train) in enumerate(general_utils.get_minibatches([x_train, y_train], batch_size)):  # 每次一个 batch
+                cur_x_train = np_.asarray(cur_x_train)
+                cur_y_train = np_.asarray(cur_y_train)
                 loss = self.forward(cur_x_train, cur_y_train, reg)
                 self.backward()
 
                 for param in self.parameters:
                     param.value -= learning_rate * param.dvalue
 
-                if iterator % 100 == 0:
+                if iterator % 100 == 0 and iterator:  # iterator % 100 == 0 且 iterator != 0
                     print(f'当前训练集的 loss: {loss}')
+                    self.check_accuracy(x_val, y_val)
+
                 prog.update(1)  # tqdm 更新进度条
                 loss_meter.update(loss)
 
-        scores_val = self.get_scores(x_val)  # shape: (N2, out_features=类别数目)
-        pred_y_val = np.argmax(scores_val, axis=1)  # shape: (N2, )
-        accuracy = np.sum(y_val == pred_y_val) / y_val.shape[0]
-        print(f"Average train loss: {loss_meter.avg}")
-        print(f"Evaluating on val set: {accuracy:.5%}", )
+        self.check_accuracy(x_val, y_val)
+        print(f"本 EPOCH 训练的平均 LOSS: {loss_meter.avg}")
