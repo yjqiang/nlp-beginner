@@ -28,7 +28,6 @@ class Vocab:
 
         self.pad_index = self.word2id['<pad>']
         self.unk_index = self.word2id['<unk>']
-        print(self.pad_index, self.unk_index)
 
     def __len__(self) -> int:
         """ Compute number of words in VocabEntry.

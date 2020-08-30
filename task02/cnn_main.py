@@ -43,7 +43,7 @@ if USE_GLOVE:
     VOCAB = Vocab(word2id)
     tensor_embedding = torch.tensor(list_embedding).to(DEVICE)
     assert tensor_embedding.shape[1] == EMBEDDING_SIZE  # 确保维度一致
-    EMBEDDING = nn.Embedding.from_pretrained(tensor_embedding, freeze=True, padding_idx=VOCAB.pad_index)  # the tensor does not get updated in the learning process
+    EMBEDDING = nn.Embedding.from_pretrained(tensor_embedding, freeze=False, padding_idx=VOCAB.pad_index)  # the tensor does get updated in the learning process!! 微调（其实就是个初始化）
 else:
     print('未发现预训练的词向量')
     VOCAB = Vocab.load_json('vocab.json')

@@ -8,7 +8,7 @@ from utils import utils
 from modules.cnn import Model
 
 
-PATH = f'{cnn_main.PATH}/epoch_10_accuracy_66.28902%.pt'
+PATH = f'{cnn_main.PATH}/epoch_13_accuracy_66.26852%.pt'
 
 model = Model(vocab=cnn_main.VOCAB, embedding_size=cnn_main.EMBEDDING_SIZE, list_filter_nums=cnn_main.LIST_FILTER_NUMS, list_window_sizes=cnn_main.LIST_WINDOW_SIZES,
               max_sentence_length=cnn_main.MAX_SENTENCE_LENGTH, dropout_p=cnn_main.DROPOUT_P, class_num=cnn_main.CLASS_NUM, list_paddings=cnn_main.LIST_PADDINGS, embedding=cnn_main.EMBEDDING)
