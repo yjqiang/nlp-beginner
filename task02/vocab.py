@@ -30,6 +30,12 @@ class Vocab:
         self.unk_index = self.word2id['<unk>']
         self.id2word = {index: word for word, index in self.word2id.items()}
 
+    def __len__(self) -> int:
+        """ Compute number of words in VocabEntry.
+        @returns len (int): number of words in VocabEntry
+        """
+        return len(self.word2id)
+
     def add(self, word: str) -> int:
         """
         Add word to VocabEntry, if it is previously unseen.
@@ -60,7 +66,7 @@ class Vocab:
         """
         return [[self.get(word) for word in sentence] for sentence in sentences]
 
-    def to_input_tensor(self, sentences: List[List[str]], max_sentence_length: int, device: torch.device) -> torch.Tensor:
+    def to_input_tensor(self, sentences: List[List[str]], max_sentence_length: int, device: Optional[torch.device]) -> torch.Tensor:
         """ Convert list of sentences (words) into tensor with necessary padding for shorter sentences.
 
         @param sentences: list of sentences (words)
