@@ -16,19 +16,19 @@ class Vocab:
     """
     def __init__(self, word2id: Optional[Dict[str, int]] = None):
         """
-        建立词典 word2id[word] = index 而 id2word[index] = word
+        建立词典 word2id[word] = index
         :param word2id: 当从文件读取 word2id 时使用
         """
         if word2id is not None:
             self.word2id = word2id
         else:
             self.word2id = dict()
-            self.word2id['<pad>'] = 0  # Pad Token
-            self.word2id['<unk>'] = 1  # Unknown Token
+            self.add('<pad>')  # Pad Token
+            self.add('<unk>')  # Unknown Token
 
         self.pad_index = self.word2id['<pad>']
         self.unk_index = self.word2id['<unk>']
-        self.id2word = {index: word for word, index in self.word2id.items()}
+        print(self.pad_index, self.unk_index)
 
     def __len__(self) -> int:
         """ Compute number of words in VocabEntry.
@@ -45,7 +45,6 @@ class Vocab:
         if word not in self.word2id:
             index = len(self.word2id)
             self.word2id[word] = index
-            self.id2word[index] = word
             return index
         else:
             return self.word2id[word]
@@ -103,14 +102,14 @@ class Vocab:
             vocab.add(word)
         return vocab
 
-    def save(self, file_path: str) -> None:
+    def save_json(self, file_path: str) -> None:
         """ Save Vocab to file as JSON dump. 保存字典
         @param file_path: file path to vocab file
         """
         json.dump(dict(word2id=self.word2id), open(file_path, 'w'), indent=2)
 
     @staticmethod
-    def load(file_path: str) -> 'Vocab':
+    def load_json(file_path: str) -> 'Vocab':
         """ Load vocabulary from JSON dump.
         @param file_path: file path to vocab file
         @returns Vocab object loaded from JSON dump
@@ -125,4 +124,4 @@ if __name__ == '__main__':
 
     sentences_ = utils.split_sentences(x_train_orig)  # sentences_ vocab_ 都是为了区别名字，防止 shadowing names defined in outer scopes
     vocab_ = Vocab.build_vocab(sentences_)
-    vocab_.save('vocab.json')
+    vocab_.save_json('vocab.json')

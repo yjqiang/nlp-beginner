@@ -3,6 +3,8 @@ from typing import List, Optional
 import torch
 import torch.nn as nn
 
+from vocab import Vocab
+
 
 class CNNLayer(nn.Module):
     """
@@ -88,12 +90,11 @@ class CNNModule(nn.Module):
 
 
 class Model(nn.Module):
-    def __init__(self, num_embeddings: int, padding_idx: int, embedding_size: int, list_filter_nums: List[int], list_window_sizes: List[int], max_sentence_length: int,
-                 dropout_p: float, class_num: int, list_paddings: Optional[List[int]] = None):
+    def __init__(self, vocab: Vocab, embedding_size: int, list_filter_nums: List[int], list_window_sizes: List[int], max_sentence_length: int,
+                 dropout_p: float, class_num: int, list_paddings: Optional[List[int]] = None, embedding: Optional[nn.Embedding] = None):
         """
         参数中带 list_* 的要求 len 相同，即元素个数一致
-        :param num_embeddings: 词典中的字数
-        :param padding_idx: pad
+        :param vocab: 提取num_embeddings: 词典中的字数； padding_idx: pad
         :param embedding_size: 词向量维度
         :param list_filter_nums: 卷积个数（几个滤波器）
         :param list_window_sizes: 窗口大小，对应论文中的 h
@@ -101,9 +102,15 @@ class Model(nn.Module):
         :param dropout_p: p – probability of an element to be zeroed.
         :param class_num: 分类数目
         :param list_paddings: 两边填充
+        :param embedding: 预训练的embedding
         """
         super().__init__()
-        self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_size, padding_idx=padding_idx)
+        if embedding is None:
+            num_embeddings = len(vocab)
+            padding_idx = vocab.pad_index
+            self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_size, padding_idx=padding_idx)
+        else:
+            self.embedding = embedding
         self.module = CNNModule(embedding_size, list_filter_nums, list_window_sizes, max_sentence_length, dropout_p, class_num, list_paddings)
         self.loss_func = nn.CrossEntropyLoss()
 
