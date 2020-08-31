@@ -1,4 +1,4 @@
-from typing import Iterator, List
+from typing import Iterator, List, Tuple
 
 import nltk
 
@@ -16,26 +16,29 @@ def split_sentences(sentences: Iterator[str]) -> List[List[str]]:
     return result
 
 
-def pad_sentences(sentences: List[List[int]], pad_index: int, max_sentence_length: int) -> List[List[int]]:
+def pad_sentences(sentences: List[List[int]], pad_index: int, max_sentence_length: int) -> Tuple[List[List[int]], List[int]]:
     """ Pad list of sentences according to the longest sentence in the batch. 填充句子，以 word 为单位
     @param sentences: list of sentences, where each sentence is represented as a list of words
     @param pad_index: padding token
     @param max_sentence_length: 多退少补
-    @returns sentences_padded (list[list[int]]): list of sentences where sentences shorter
-        than the max length sentence are padded out with the pad_token, such that
-        each sentences in the batch now has equal length.
-        Output shape: (batch_size, max_sentence_length)
+    @returns sentences_padded: list of sentences where sentences shorter than the max length sentence are padded out with the pad_token, such that
+        each sentences in the batch now has equal length. Output shape: (batch_size, max_sentence_length)
+             seq_lengths: List of actual lengths for each of the sentences in the batch
+
     """
     sentences_padded = []
+    seq_lengths = []
 
     for sentence in sentences:
         len_sentence = len(sentence)
         # 长的截断
         if len_sentence > max_sentence_length:
             sentence_padded = sentence[:max_sentence_length]
+            seq_lengths.append(max_sentence_length)
         else:
             sentence_padded = [pad_index] * max_sentence_length
             sentence_padded[:len_sentence] = sentence
+            seq_lengths.append(len_sentence)
         sentences_padded.append(sentence_padded)
 
-    return sentences_padded
+    return sentences_padded, seq_lengths

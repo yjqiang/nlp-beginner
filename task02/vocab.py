@@ -1,6 +1,6 @@
 from collections import Counter
 from itertools import chain
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple
 import json
 
 import torch
@@ -64,7 +64,7 @@ class Vocab:
         """
         return [[self.get(word) for word in sentence] for sentence in sentences]
 
-    def to_input_tensor(self, sentences: List[List[str]], max_sentence_length: int, device: Optional[torch.device]) -> torch.Tensor:
+    def to_input_tensor(self, sentences: List[List[str]], max_sentence_length: int, device: Optional[torch.device]) -> Tuple[torch.Tensor, List[int]]:
         """ Convert list of sentences (words) into tensor with necessary padding for shorter sentences.
 
         @param sentences: list of sentences (words)
@@ -72,11 +72,12 @@ class Vocab:
         @param device: device on which to load the tensor, i.e. CPU or GPU
 
         @returns sentences_var: tensor of (batch_size, max_sentence_length) 句子群变成了 Tensor，sentences_var[第几句][该句的第几个单词] = 单词在 vocab 的 index
+                 seq_lengths: List of actual lengths for each of the sentences in the batch
         """
         word_ids = self.words2indices(sentences)
-        list_sentences = utils.pad_sentences(word_ids, self.pad_index, max_sentence_length)
+        list_sentences, seq_lengths = utils.pad_sentences(word_ids, self.pad_index, max_sentence_length)
         sentences_var = torch.tensor(list_sentences, dtype=torch.long, device=device)
-        return sentences_var
+        return sentences_var, seq_lengths
 
     @staticmethod
     def build_vocab(sentences: List[List[str]], size: Optional[int] = None,  count_cutoff: int = 2) -> 'Vocab':

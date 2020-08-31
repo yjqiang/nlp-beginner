@@ -6,6 +6,11 @@ import pandas as pd
 # 读取 train.csv/train_split.tsv/val_split.tsv 文件，并且返回原始数据
 def read_tsv_data0(path: str) -> Tuple[pd.Series, pd.Series]:
     dataframe = pd.read_csv(path, delimiter='\t')
+    # 特么第一次见 sentence 还有 ' ' 的，还特么可以标注？
+    # 当我们在清洗数据时往往会将带有空值的行删除，不论是DataFrame还是Series的index都将不再是连续的索引了，那么这个时候我们可以使用reset_index()方法来重置它们的索引，以便后续的操作。
+    # drop=False，此时会获得新的 index 列，而原来的那个连续索引（删除之后，现在非连续了）变成了 index 的数据列，保留了下来。
+    dataframe = dataframe[dataframe['Phrase'].str.strip() != ''].reset_index(drop=True)
+
     sentences = dataframe['Phrase']  # Dtype 为 object，更确切的说，是 str
     labels = dataframe['Sentiment']  # Dtype 为 int64
     return sentences, labels
