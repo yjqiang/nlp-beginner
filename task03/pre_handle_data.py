@@ -5,7 +5,7 @@
 from typing import List, Tuple
 
 import main
-import data_handle
+import file_handle
 from utils import utils
 
 
@@ -15,7 +15,7 @@ def read_and_transform_data(path: str) -> Tuple[List[List[int]], List[List[int]]
     :param path:
     :return:
     """
-    x1_orig, x2_orig, y_orig = data_handle.read_data(path)
+    x1_orig, x2_orig, y_orig = file_handle.read_data(path)
 
     # 处理数据
     x1_sentences_str = utils.split_sentences(x1_orig)
@@ -28,8 +28,8 @@ def read_and_transform_data(path: str) -> Tuple[List[List[int]], List[List[int]]
 if __name__ == '__main__':
     snli_path = 'data/snli_1.0'
     result = read_and_transform_data(f'{snli_path}/snli_1.0_dev.jsonl')
-    data_handle.save_pickle(f'{snli_path}/snli_1.0_dev.pkl', result)
+    file_handle.save_pickle(f'{snli_path}/snli_1.0_dev.pkl', result)
     result = read_and_transform_data(f'{snli_path}/snli_1.0_test.jsonl')
-    data_handle.save_pickle(f'{snli_path}/snli_1.0_test.pkl', result)
+    file_handle.save_pickle(f'{snli_path}/snli_1.0_test.pkl', result)
     result = read_and_transform_data(f'{snli_path}/snli_1.0_train.jsonl')
-    data_handle.save_pickle(f'{snli_path}/snli_1.0_train.pkl', result)
+    file_handle.save_pickle(f'{snli_path}/snli_1.0_train.pkl', result)
