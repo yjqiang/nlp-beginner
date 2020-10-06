@@ -2,10 +2,10 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.optim import Adam
+from tqdm import tqdm
 
 import file_handle
 from vocab import Vocab
-from tqdm import tqdm
 from dataset import MyDataset
 from modules import esim
 
